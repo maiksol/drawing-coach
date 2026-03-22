@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist } from "next/font/google";
+import { Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -7,14 +8,15 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const playfair = Playfair_Display({
+  variable: "--font-serif",
   subsets: ["latin"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
-  title: "Drawing Coach",
-  description: "Improve your drawing skills with daily prompts, step-by-step guides, technique tips, and timed practice.",
+  title: "InkWork — Daily Drawing Challenges",
+  description: "Daily fineliner drawing challenges. Pick up your pen and draw.",
 };
 
 export default function RootLayout({
@@ -24,9 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${playfair.variable} antialiased`}>
         {children}
       </body>
     </html>

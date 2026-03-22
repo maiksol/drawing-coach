@@ -1,12 +1,13 @@
-# Drawing Coach
+# InkWork — Daily Drawing Challenges
 
-A web app to help users improve their drawing on paper — not a digital drawing tool. It provides prompts, guides, tips, and timed exercises.
+A web app to help users improve their **fineliner/pen drawing on paper**. It presents daily drawing challenges with reference images, tips, and technique guidance. Not a digital drawing tool.
 
 ## Stack
 
 - **Next.js 16** (App Router, TypeScript)
 - **Tailwind CSS v4**
-- **No database** — all content is static data in `lib/data.ts`
+- **Fonts:** Geist Sans (UI) + Playfair Display (headings/serif accents)
+- **No database** — all content is static data inside `app/page.tsx`
 
 ## Deployment
 
@@ -18,25 +19,41 @@ A web app to help users improve their drawing on paper — not a digital drawing
 
 ```
 app/
-  layout.tsx       # Root layout, metadata
-  page.tsx         # Main page with tab navigation
-components/
-  DailyChallenge.tsx   # One rotating prompt per day (based on day of year)
-  Prompts.tsx          # All prompts with difficulty/category filters
-  Guides.tsx           # Step-by-step guides, opens into a detail view
-  Tips.tsx             # Technique tips grouped by category, accordion style
-  TimedPractice.tsx    # Random prompt + countdown timer (30s–10min)
-lib/
-  data.ts          # All content: prompts, guides, tips + getDailyPrompt()
+  layout.tsx     # Root layout — fonts (Geist + Playfair Display), metadata
+  globals.css    # CSS variables: --ink, --paper, --ink-muted, --accent, etc.
+  page.tsx       # Entire app: challenge data, UI, icons, helper components
 ```
+
+All challenges and UI live in a single `app/page.tsx`. There are no separate component files or data files.
 
 ## Content
 
-All content lives in `lib/data.ts`. To add more:
+All challenges are in the `challenges` array in `app/page.tsx`. Each entry has:
 
-- **Prompts** — add to the `prompts` array. Fields: `text`, `category`, `difficulty`, `tips[]`
-- **Guides** — add to the `guides` array. Fields: `title`, `difficulty`, `timeEstimate`, `intro`, `steps[]`
-- **Tips** — add to the `tips` array. Fields: `title`, `category`, `body`, `keyPoints[]`
+```ts
+{
+  prompt: string;           // Challenge title
+  description: string;      // 1–2 sentence brief
+  technique: string;        // Focus technique (e.g. "Cross-hatching")
+  difficulty: 1 | 2 | 3;   // 1 = Beginner, 2 = Intermediate, 3 = Advanced
+  difficultyLabel: string;  // Human-readable label
+  time: string;             // Estimated time (e.g. "30–45 min")
+  tips: string[];           // 5 technique tips specific to the challenge
+  imageUrl: string;         // Unsplash reference image URL
+}
+```
+
+The daily challenge rotates based on day of year (`getDailyIndex()`). A shuffle button lets users get a random different challenge.
+
+## Design tokens (globals.css)
+
+| Variable | Value | Use |
+|---|---|---|
+| `--background` / `--paper` | `#f7f4ef` | Warm off-white background |
+| `--ink` | `#111111` | Primary text and borders |
+| `--ink-muted` | `#666` | Secondary text |
+| `--ink-faint` | `#11111118` | Subtle dividers |
+| `--accent` | `#c0451c` | Unused currently — available for highlights |
 
 ## Commands
 
