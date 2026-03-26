@@ -401,12 +401,13 @@ export default function Home() {
 
   const challenge = challenges[index];
   const drawings = drawingsData[challenge.prompt] ?? [];
-  const challengeNum = index + 1;
 
   const today = new Date();
-  const dateStr = today
-    .toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
-    .toUpperCase();
+  const dateStr = today.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).toUpperCase();
 
   function shuffle() {
     setIndex((prev) => {
@@ -420,221 +421,224 @@ export default function Home() {
   return (
     <div style={{ background: "var(--background)", minHeight: "100vh" }}>
 
-      {/* ── Masthead Header ── */}
-      <header>
-        <div style={{ borderTop: "3px solid var(--ink)", borderBottom: "1px solid var(--ink)" }}>
-          <div className="text-center px-6 py-5">
-            <div
+      {/* ── Header ── */}
+      <header style={{ borderBottom: "1px solid var(--accent-dim)" }}>
+        <div
+          className="flex items-center justify-between px-6 md:px-10 py-4"
+          style={{ maxWidth: 1100, margin: "0 auto" }}
+        >
+          <div style={{ display: "flex", alignItems: "baseline", gap: "0.75rem" }}>
+            <span
               style={{
                 fontFamily: "var(--font-serif)",
                 fontStyle: "italic",
                 fontWeight: 700,
-                fontSize: "clamp(2.8rem, 8vw, 5.5rem)",
-                lineHeight: 1,
-                color: "var(--ink)",
-                letterSpacing: "-0.015em",
+                fontSize: "1.35rem",
+                color: "var(--foreground)",
+                letterSpacing: "-0.01em",
               }}
             >
               InkWork
-            </div>
-          </div>
-        </div>
-        <div style={{ borderBottom: "3px solid var(--ink)" }}>
-          <div className="max-w-4xl mx-auto px-6 py-2 flex items-center justify-between">
+            </span>
             <span
               style={{
                 fontFamily: "var(--font-mono)",
-                fontSize: "0.6rem",
+                fontSize: "0.58rem",
                 color: "var(--ink-muted)",
-                letterSpacing: "0.06em",
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+              }}
+            >
+              Fineliner Challenges
+            </span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.58rem",
+                color: "var(--ink-muted)",
+                letterSpacing: "0.08em",
               }}
             >
               {dateStr}
             </span>
-            <span
+            <button
+              onClick={shuffle}
+              title="Try a different challenge"
               style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                border: "1px solid var(--accent-dim)",
+                borderRadius: 3,
+                padding: "0.35rem 0.75rem",
+                color: "var(--accent)",
                 fontFamily: "var(--font-mono)",
                 fontSize: "0.6rem",
-                color: "var(--ink)",
-                letterSpacing: "0.14em",
-                fontWeight: 600,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                background: "transparent",
               }}
             >
-              DAILY FINELINER CHALLENGES
-            </span>
-            <span
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "0.6rem",
-                color: "var(--ink-muted)",
-                letterSpacing: "0.06em",
-              }}
-            >
-              GRAB YOUR PENS &amp; PAPER
-            </span>
+              <ShuffleIcon />
+              Shuffle
+            </button>
           </div>
         </div>
       </header>
 
-      {/* ── Main ── */}
-      <main className="max-w-4xl mx-auto px-6 py-10 space-y-5">
-
-        {/* Challenge card */}
-        <div
-          className="ink-reveal relative overflow-hidden"
+      {/* ── Challenge Hero — dark, full-width ── */}
+      <section
+        className="rise"
+        style={{
+          padding: "5rem 1.5rem 4.5rem",
+          maxWidth: 1100,
+          margin: "0 auto",
+          animationDelay: "0ms",
+        }}
+      >
+        <p
           style={{
-            border: "1px solid #cec9c0",
-            borderRadius: 8,
-            background: "var(--paper-card)",
-            animationDelay: "0ms",
+            fontFamily: "var(--font-mono)",
+            fontSize: "0.6rem",
+            color: "var(--accent)",
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+            marginBottom: "1.75rem",
           }}
         >
-          {/* Watermark number */}
+          Today&apos;s Challenge
+        </p>
+
+        <h1
+          style={{
+            fontFamily: "var(--font-serif)",
+            fontStyle: "italic",
+            fontWeight: 700,
+            fontSize: "clamp(3.5rem, 9vw, 7.5rem)",
+            color: "var(--foreground)",
+            lineHeight: 0.95,
+            letterSpacing: "-0.03em",
+            marginBottom: "2rem",
+          }}
+        >
+          {challenge.prompt}
+        </h1>
+
+        <p
+          style={{
+            fontSize: "1.05rem",
+            lineHeight: 1.65,
+            color: "var(--ink-muted)",
+            maxWidth: "48ch",
+            marginBottom: "2.5rem",
+          }}
+        >
+          {challenge.description}
+        </p>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
+          <DifficultyMeter level={challenge.difficulty} label={challenge.difficultyLabel} />
           <div
-            className="absolute top-0 right-5 leading-none select-none pointer-events-none"
-            aria-hidden="true"
+            style={{ width: 1, height: 18, background: "var(--accent)", opacity: 0.35, flexShrink: 0 }}
+          />
+          <span
             style={{
-              fontFamily: "var(--font-serif)",
-              fontStyle: "italic",
-              fontWeight: 700,
-              fontSize: "clamp(7rem, 18vw, 13rem)",
-              color: "var(--ink)",
-              opacity: 0.042,
-              lineHeight: 0.82,
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.7rem",
+              color: "var(--ink-muted)",
             }}
           >
-            {challengeNum}
-          </div>
+            {challenge.time}
+          </span>
+          <div
+            style={{ width: 1, height: 18, background: "var(--accent)", opacity: 0.35, flexShrink: 0 }}
+          />
+          <span
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.6rem",
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: "var(--accent)",
+              border: "1px solid var(--accent)",
+              borderRadius: 2,
+              padding: "0.22rem 0.65rem",
+            }}
+          >
+            {challenge.technique}
+          </span>
+        </div>
+      </section>
 
-          <div className="p-8 md:p-10 relative" style={{ zIndex: 1 }}>
-            <div className="flex items-start justify-between mb-5">
-              <span
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "0.62rem",
-                  color: "var(--ink-muted)",
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                }}
-              >
-                Today&apos;s Challenge &middot; No.{String(challengeNum).padStart(2, "0")}
-              </span>
-              <button
-                onClick={shuffle}
-                title="Try a different challenge"
-                className="w-9 h-9 flex items-center justify-center transition-colors hover:bg-black/5"
-                style={{ border: "1px solid #cec9c0", borderRadius: 6, flexShrink: 0 }}
-              >
-                <ShuffleIcon />
-              </button>
-            </div>
+      {/* ── Amber rule ── */}
+      <div style={{ borderTop: "1px solid var(--accent-dim)", margin: "0 1.5rem" }} />
 
-            <h1
-              className="font-bold leading-tight mb-4"
-              style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: "clamp(2.4rem, 6vw, 4rem)",
-                color: "var(--ink)",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              {challenge.prompt}
-            </h1>
+      {/* ── Paper cards on dark desk ── */}
+      <section style={{ padding: "3.5rem 1.5rem 5rem" }}>
+        <div
+          className="grid grid-cols-1 md:grid-cols-2"
+          style={{ gap: "2rem", maxWidth: 1100, margin: "0 auto" }}
+        >
 
-            <p
-              className="text-base leading-relaxed mb-7"
-              style={{ color: "var(--ink-muted)", maxWidth: "58ch" }}
-            >
-              {challenge.description}
-            </p>
-
-            <div
-              className="flex items-center gap-5 flex-wrap"
-              style={{ borderTop: "1px solid var(--ink-faint)", paddingTop: "1.1rem" }}
-            >
-              <DifficultyMeter level={challenge.difficulty} label={challenge.difficultyLabel} />
-              <div className="flex items-center gap-2">
-                <span
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.58rem",
-                    color: "var(--ink-muted)",
-                    letterSpacing: "0.12em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Time
-                </span>
-                <span
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.72rem",
-                    color: "var(--ink)",
-                  }}
-                >
-                  {challenge.time}
-                </span>
-              </div>
-              <div
+          {/* Tips — paper card, slight tilt left */}
+          <div
+            className="paper-card rise"
+            style={{
+              borderRadius: 3,
+              transform: "rotate(-0.4deg)",
+              animationDelay: "120ms",
+            }}
+          >
+            <div style={{ padding: "2rem 2.25rem 2.5rem" }}>
+              <p
                 style={{
                   fontFamily: "var(--font-mono)",
                   fontSize: "0.58rem",
-                  letterSpacing: "0.12em",
+                  color: "var(--card-muted)",
+                  letterSpacing: "0.18em",
                   textTransform: "uppercase",
-                  color: "var(--ink)",
-                  border: "1px solid var(--ink)",
-                  borderRadius: 2,
-                  padding: "0.22rem 0.6rem",
+                  marginBottom: "0.5rem",
                 }}
               >
-                {challenge.technique}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Two-column section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-          {/* Tips */}
-          <div
-            className="ink-reveal"
-            style={{
-              border: "1px solid #cec9c0",
-              borderRadius: 8,
-              background: "var(--paper-card)",
-              animationDelay: "90ms",
-            }}
-          >
-            <div className="p-7">
-              <div style={{ borderBottom: "1px solid var(--ink-faint)", marginBottom: "1.2rem", paddingBottom: "0.7rem" }}>
-                <h2
-                  className="font-bold"
-                  style={{
-                    fontFamily: "var(--font-serif)",
-                    fontSize: "1.2rem",
-                    color: "var(--ink)",
-                  }}
-                >
-                  Tips &amp; Techniques
-                </h2>
-              </div>
-              <ol className="space-y-4">
+                Technique Notes
+              </p>
+              <h2
+                style={{
+                  fontFamily: "var(--font-serif)",
+                  fontWeight: 700,
+                  fontSize: "1.35rem",
+                  color: "var(--card-ink)",
+                  marginBottom: "1.5rem",
+                  paddingBottom: "1rem",
+                  borderBottom: "1px solid #e0d8c8",
+                }}
+              >
+                Tips &amp; Techniques
+              </h2>
+              <ol style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
                 {challenge.tips.map((tip, i) => (
-                  <li key={i} className="flex items-start gap-3">
+                  <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.85rem" }}>
                     <span
                       style={{
                         fontFamily: "var(--font-mono)",
-                        fontSize: "0.68rem",
-                        color: "var(--ink-muted)",
+                        fontSize: "0.65rem",
+                        color: "var(--accent)",
                         flexShrink: 0,
-                        paddingTop: "0.18rem",
-                        minWidth: "1.6rem",
+                        paddingTop: "0.2rem",
+                        minWidth: "1.5rem",
                       }}
                     >
                       {String(i + 1).padStart(2, "0")}.
                     </span>
-                    <span className="text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
+                    <span
+                      style={{
+                        fontSize: "0.9rem",
+                        lineHeight: 1.6,
+                        color: "var(--card-muted)",
+                      }}
+                    >
                       {tip}
                     </span>
                   </li>
@@ -643,63 +647,76 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Interpretations gallery */}
+          {/* Gallery — paper card, slight tilt right */}
           <div
-            className="ink-reveal"
+            className="paper-card rise"
             style={{
-              border: "1px solid #cec9c0",
-              borderRadius: 8,
-              background: "var(--paper-card)",
-              animationDelay: "180ms",
+              borderRadius: 3,
+              transform: "rotate(0.35deg)",
+              animationDelay: "220ms",
             }}
           >
-            <div className="p-7">
-              <div style={{ borderBottom: "1px solid var(--ink-faint)", marginBottom: "1.2rem", paddingBottom: "0.7rem" }}>
-                <h2
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.6rem",
-                    color: "var(--ink-muted)",
-                    letterSpacing: "0.14em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Interpretations &middot; click for guide
-                </h2>
-              </div>
+            <div style={{ padding: "2rem 2.25rem 2.5rem" }}>
+              <p
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.58rem",
+                  color: "var(--card-muted)",
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                Interpretations
+              </p>
+              <h2
+                style={{
+                  fontFamily: "var(--font-serif)",
+                  fontWeight: 700,
+                  fontSize: "1.35rem",
+                  color: "var(--card-ink)",
+                  marginBottom: "1.5rem",
+                  paddingBottom: "1rem",
+                  borderBottom: "1px solid #e0d8c8",
+                }}
+              >
+                How it can look
+              </h2>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.6rem" }}>
                 {drawings.map((drawing, i) => (
                   <button
                     key={i}
                     onClick={() => setLightboxDrawing(drawing)}
-                    className="group relative overflow-hidden"
+                    className="group"
                     style={{
+                      position: "relative",
                       aspectRatio: "1/1",
-                      borderRadius: 4,
-                      background: "var(--paper)",
-                      border: "1px solid #d4cec4",
+                      borderRadius: 2,
+                      background: "#fff",
+                      border: "1px solid #ddd5c4",
+                      overflow: "hidden",
                     }}
                     title={drawing.title}
                   >
                     <div
-                      className="w-full h-full"
+                      style={{ width: "100%", height: "100%" }}
                       dangerouslySetInnerHTML={{
                         __html: drawing.svg.replace("<svg ", '<svg width="100%" height="100%" '),
                       }}
                     />
                     <div
-                      className="absolute inset-0 flex items-end opacity-0 group-hover:opacity-100 transition-opacity p-2"
+                      className="absolute inset-0 flex items-end opacity-0 group-hover:opacity-100 transition-opacity"
                       style={{
-                        background:
-                          "linear-gradient(to top, rgba(243,237,226,0.97) 0%, transparent 60%)",
+                        padding: "0.5rem",
+                        background: "linear-gradient(to top, rgba(249,245,236,0.97) 0%, transparent 65%)",
                       }}
                     >
                       <span
                         style={{
                           fontFamily: "var(--font-mono)",
-                          fontSize: "0.58rem",
-                          color: "var(--ink)",
+                          fontSize: "0.55rem",
+                          color: "var(--card-ink)",
                           lineHeight: 1.3,
                         }}
                       >
@@ -711,128 +728,137 @@ export default function Home() {
               </div>
 
               <p
-                className="italic mt-3"
                 style={{
                   fontFamily: "var(--font-mono)",
-                  fontSize: "0.58rem",
-                  color: "var(--ink-muted)",
+                  fontSize: "0.56rem",
+                  color: "#b8af9e",
                   letterSpacing: "0.04em",
+                  marginTop: "1rem",
                 }}
               >
                 AI-generated &middot; click any drawing to see the step-by-step guide
               </p>
             </div>
           </div>
-        </div>
-      </main>
 
-      {/* Lightbox */}
+        </div>
+      </section>
+
+      {/* ── Lightbox ── */}
       {lightboxDrawing && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-10"
-          style={{ background: "rgba(26,20,16,0.88)" }}
+          style={{ background: "rgba(8,6,3,0.94)" }}
           onClick={() => setLightboxDrawing(null)}
         >
           <div
-            className="relative w-full max-w-2xl flex flex-col md:flex-row overflow-hidden"
-            style={{ background: "var(--paper-card)", borderRadius: 8, maxHeight: "90vh" }}
+            className="paper-card"
+            style={{
+              position: "relative",
+              width: "100%",
+              maxWidth: 680,
+              display: "flex",
+              flexDirection: "column",
+              borderRadius: 3,
+              maxHeight: "90vh",
+              overflow: "hidden",
+            }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Lightbox top rule */}
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 3,
-                background: "var(--ink)",
-                zIndex: 10,
-              }}
-            />
+            {/* Amber top bar */}
+            <div style={{ height: 3, background: "var(--accent)", flexShrink: 0 }} />
+
+            <div style={{ display: "flex", flexDirection: "row", overflow: "hidden", flex: 1 }}>
+              {/* SVG panel */}
+              <div
+                style={{
+                  flexShrink: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "2.5rem 1.5rem",
+                  minWidth: 220,
+                  background: "#fff",
+                  borderRight: "1px solid #e0d8c8",
+                }}
+              >
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: lightboxDrawing.svg.replace("<svg ", '<svg width="200" height="200" '),
+                  }}
+                />
+              </div>
+
+              {/* Steps panel */}
+              <div style={{ flex: 1, overflowY: "auto", padding: "2rem 1.75rem 2rem" }}>
+                <p
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.56rem",
+                    color: "var(--card-muted)",
+                    letterSpacing: "0.18em",
+                    textTransform: "uppercase",
+                    marginBottom: "0.35rem",
+                  }}
+                >
+                  How to draw this
+                </p>
+                <h3
+                  style={{
+                    fontFamily: "var(--font-serif)",
+                    fontWeight: 700,
+                    fontSize: "1.2rem",
+                    color: "var(--card-ink)",
+                    lineHeight: 1.2,
+                    marginBottom: "1.5rem",
+                  }}
+                >
+                  {lightboxDrawing.title}
+                </h3>
+                <ol style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                  {lightboxDrawing.steps.map((step, i) => (
+                    <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}>
+                      <span
+                        style={{
+                          fontFamily: "var(--font-mono)",
+                          fontSize: "0.65rem",
+                          color: "var(--accent)",
+                          flexShrink: 0,
+                          paddingTop: "0.15rem",
+                          minWidth: "1.5rem",
+                        }}
+                      >
+                        {String(i + 1).padStart(2, "0")}.
+                      </span>
+                      <span style={{ fontSize: "0.88rem", lineHeight: 1.6, color: "var(--card-muted)" }}>
+                        {step}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </div>
 
             <button
               onClick={() => setLightboxDrawing(null)}
-              className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center"
               style={{
-                border: "1px solid #cec9c0",
-                borderRadius: 4,
-                background: "var(--paper-card)",
-                color: "var(--ink)",
+                position: "absolute",
+                top: "0.85rem",
+                right: "0.85rem",
+                zIndex: 10,
+                width: 30,
+                height: 30,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: "1px solid #ddd5c4",
+                borderRadius: 2,
+                background: "var(--paper)",
+                color: "var(--card-muted)",
               }}
             >
               <CloseIcon />
             </button>
-
-            {/* SVG panel */}
-            <div
-              className="flex-shrink-0 flex items-center justify-center"
-              style={{ padding: "2.5rem 2rem 2rem", minWidth: 220, background: "var(--paper)" }}
-            >
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: lightboxDrawing.svg.replace("<svg ", '<svg width="220" height="220" '),
-                }}
-              />
-            </div>
-
-            {/* Steps panel */}
-            <div
-              className="flex-1 overflow-y-auto"
-              style={{
-                padding: "2.5rem 1.75rem 1.75rem",
-                borderLeft: "1px solid #cec9c0",
-                borderTop: "1px solid #cec9c0",
-              }}
-            >
-              <p
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "0.58rem",
-                  color: "var(--ink-muted)",
-                  letterSpacing: "0.14em",
-                  textTransform: "uppercase",
-                  marginBottom: "0.3rem",
-                }}
-              >
-                How to draw this
-              </p>
-              <h3
-                className="font-bold mb-5"
-                style={{
-                  fontFamily: "var(--font-serif)",
-                  fontSize: "1.3rem",
-                  color: "var(--ink)",
-                  lineHeight: 1.25,
-                }}
-              >
-                {lightboxDrawing.title}
-              </h3>
-              <ol className="space-y-4">
-                {lightboxDrawing.steps.map((step, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span
-                      style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "0.68rem",
-                        color: "var(--ink-muted)",
-                        flexShrink: 0,
-                        paddingTop: "0.18rem",
-                        minWidth: "1.6rem",
-                      }}
-                    >
-                      {String(i + 1).padStart(2, "0")}.
-                    </span>
-                    <span
-                      className="text-sm leading-relaxed"
-                      style={{ color: "var(--foreground)" }}
-                    >
-                      {step}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            </div>
           </div>
         </div>
       )}
@@ -867,21 +893,26 @@ function CloseIcon() {
 
 function DifficultyMeter({ level, label }: { level: Difficulty; label: string }) {
   return (
-    <div className="flex items-center gap-2">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--ink-muted)" }}>
-        <line x1="18" y1="20" x2="18" y2="10" />
-        <line x1="12" y1="20" x2="12" y2="4" />
-        <line x1="6" y1="20" x2="6" y2="14" />
-      </svg>
-      <span className="text-sm" style={{ color: "var(--ink-muted)" }}>{label}</span>
-      <div className="flex gap-1 ml-1">
+    <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+      <span
+        style={{
+          fontFamily: "var(--font-mono)",
+          fontSize: "0.7rem",
+          color: "var(--ink-muted)",
+        }}
+      >
+        {label}
+      </span>
+      <div style={{ display: "flex", gap: "0.3rem" }}>
         {[1, 2, 3].map((dot) => (
           <div
             key={dot}
-            className="w-2.5 h-2.5 rounded-full"
             style={{
-              background: dot <= level ? "var(--ink)" : "transparent",
-              border: `1px solid ${dot <= level ? "var(--ink)" : "#aaa"}`,
+              width: 7,
+              height: 7,
+              borderRadius: "50%",
+              background: dot <= level ? "var(--accent)" : "transparent",
+              border: `1px solid ${dot <= level ? "var(--accent)" : "rgba(201,107,26,0.3)"}`,
             }}
           />
         ))}
