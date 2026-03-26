@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { drawingsData, type GeneratedDrawing } from "../lib/drawings-data";
 
 type Difficulty = 1 | 2 | 3;
 
@@ -14,6 +13,9 @@ interface Challenge {
   difficultyLabel: string;
   time: string;
   tips: string[];
+  marks: string[];
+  watch: string;
+  avoid: string;
 }
 
 const challenges: Challenge[] = [
@@ -32,6 +34,9 @@ const challenges: Challenge[] = [
       "Use parallel hatching for flat planes, cross-hatching for shadow transitions",
       "This exercise trains you to see value, not objects",
     ],
+    marks: ["Parallel hatching", "Cross-hatching", "Tonal gradients"],
+    watch: "Simplify first — block in the three tonal zones before adding any hatching",
+    avoid: "Filling everything with the same density; contrast between light and dark is the whole point",
   },
   {
     prompt: "Twisted Roots",
@@ -48,6 +53,9 @@ const challenges: Challenge[] = [
       "Layered cross-hatching builds rich dark tones without muddiness",
       "Let some areas breathe — not everything needs full detail",
     ],
+    marks: ["Cross-hatching", "Directional hatching", "Varied line weight"],
+    watch: "Let the hatching follow the direction the wood grows — it describes form and texture at once",
+    avoid: "Flat, evenly spaced lines; vary pressure and spacing to suggest the organic irregularity of wood",
   },
   {
     prompt: "Weathered Door",
@@ -64,6 +72,9 @@ const challenges: Challenge[] = [
       "The shadow under a door frame is one of the darkest areas; hatch it densely",
       "Step back often. Details only work when the big shapes are right",
     ],
+    marks: ["Thick/thin line weight", "Flick strokes", "Dense hatching"],
+    watch: "Establish the overall structure with heavier lines before adding any surface detail",
+    avoid: "Drawing every crack and chip — select only the most expressive marks, or it becomes noise",
   },
   {
     prompt: "Old Hands",
@@ -80,6 +91,9 @@ const challenges: Challenge[] = [
       "The spaces between fingers define the hand as much as the fingers themselves",
       "Avoid outlining every finger with the same weight — vary pressure",
     ],
+    marks: ["Contour lines", "Wrinkle lines", "Selective hatching"],
+    watch: "Draw the large masses first — palm, finger groups — before committing to any wrinkle detail",
+    avoid: "Outlining every finger with uniform weight; vary pressure so receding edges are lighter",
   },
   {
     prompt: "Tangled Wire",
@@ -96,6 +110,9 @@ const challenges: Challenge[] = [
       "Try a continuous line approach — don't lift the pen",
       "Notice how the wire changes thickness as it curves toward you or away",
     ],
+    marks: ["Negative space shapes", "Overlap shadows", "Continuous line"],
+    watch: "Draw the holes between wires as shapes, not the wires themselves — it's faster and more accurate",
+    avoid: "Lifting your pen mid-stroke; a wavering line breaks the illusion of taut wire",
   },
   {
     prompt: "Feather Study",
@@ -112,6 +129,9 @@ const challenges: Challenge[] = [
       "The underside of a feather is lighter; leave more white paper there",
       "Try hatching along the barbs for the shadow side to add depth",
     ],
+    marks: ["Fine parallel lines", "Feathered strokes", "Directional barb lines"],
+    watch: "Draw the central shaft first and let everything else fan out from it — structure before detail",
+    avoid: "Making barbs too even and mechanical; break a few near the tip for a natural, lived-in look",
   },
   {
     prompt: "Rope Knot",
@@ -128,6 +148,9 @@ const challenges: Challenge[] = [
       "Knots are symmetric — if something looks wrong, check the other side",
       "Cross-hatch the deepest shadow areas where strands overlap tightly",
     ],
+    marks: ["Overlap shadow lines", "Diagonal twist strokes", "Cross-hatching"],
+    watch: "Follow one strand with your eye all the way through before you draw — understand the path first",
+    avoid: "Guessing where strands pass over or under; a single wrong overlap will unravel the whole knot",
   },
   {
     prompt: "Dried Flower",
@@ -144,6 +167,9 @@ const challenges: Challenge[] = [
       "Stems are often wiry and bent — don't make them too straight or rigid",
       "Leave the lightest areas completely white, no lines at all",
     ],
+    marks: ["Light cross-hatching", "Crinkle edge lines", "Bare white paper"],
+    watch: "Keep your touch extremely light — dried botanicals read as delicate when the hatching barely exists",
+    avoid: "Over-hatching the petals; restraint is the whole technique here",
   },
   {
     prompt: "Street Lamp at Night",
@@ -160,6 +186,9 @@ const challenges: Challenge[] = [
       "Don't outline the glow — let it dissolve into lighter hatching",
       "Silhouette elements (branches, railings) against the light for strong contrast",
     ],
+    marks: ["Radiating lines", "Dense background hatching", "Silhouette outlines"],
+    watch: "Work outward from the light source — densest hatching farthest away, bare paper at the centre",
+    avoid: "Drawing a hard outline around the glow; light doesn't have edges, it just fades",
   },
   {
     prompt: "Spider Web",
@@ -176,6 +205,9 @@ const challenges: Challenge[] = [
       "Where droplets cling to the web, add tiny circles or oval clusters",
       "The context — twig, window frame — anchors the web. Don't skip it",
     ],
+    marks: ["Fine curved lines", "Radial structure lines", "Tiny dot clusters"],
+    watch: "Draw all the radii first as a skeleton, then connect them with the spiral — never the other way round",
+    avoid: "Making the spiral lines perfectly even; slight irregularity is what makes a web look real",
   },
   {
     prompt: "Worn Boot",
@@ -192,6 +224,9 @@ const challenges: Challenge[] = [
       "Leather has a slight sheen — a thin highlight line along the toe ridge reads instantly",
       "Worn soles have uneven wear; slightly tilt or distort the shape",
     ],
+    marks: ["Layered hatching", "Crease lines", "Highlight reservation"],
+    watch: "Start with the deepest creases as your darkest values, then build lighter layers outward",
+    avoid: "Evenly hatching the whole surface — the contrast between worn creases and smooth leather is the story",
   },
   {
     prompt: "Ink Bottle",
@@ -208,6 +243,9 @@ const challenges: Challenge[] = [
       "The label is a flat plane; any text on it should follow the curve of the bottle",
       "The shadow cast by the bottle is often more interesting than the bottle itself",
     ],
+    marks: ["Reflected light lines", "Tonal gradients", "Sharp white reservation"],
+    watch: "Leave a crisp white highlight strip on the glass — that single untouched line reads instantly as shine",
+    avoid: "Drawing a uniform outline around the glass; draw the reflections and distortions instead",
   },
   {
     prompt: "Forest Floor",
@@ -224,6 +262,9 @@ const challenges: Challenge[] = [
       "Don't draw everything. Select a focal area and let the edges fade",
       "Shadows under leaves are small and sharp — a few bold marks go a long way",
     ],
+    marks: ["Overlap layering", "Varied texture marks", "Selective detail"],
+    watch: "Draw the topmost layer first and work downward — overlap does all the depth work for you",
+    avoid: "Drawing every leaf; choose one focal patch and let the surrounding area dissolve into suggestion",
   },
   {
     prompt: "Bare Tree Against Sky",
@@ -240,6 +281,9 @@ const challenges: Challenge[] = [
       "A few dead leaves clinging to a twig add narrative",
       "Bark texture: short vertical hatching on the shaded side of the trunk",
     ],
+    marks: ["Tapered line weight", "Negative space check", "Short bark hatching"],
+    watch: "Check your branch shapes by looking at the sky gaps between them — negative space reveals errors fast",
+    avoid: "Branches that stay the same thickness — every fork must produce two thinner lines than the one before",
   },
   {
     prompt: "Eye Close-up",
@@ -256,6 +300,9 @@ const challenges: Challenge[] = [
       "A bright catchlight (white dot) in the iris makes the eye come alive",
       "Cross-hatch the pupil very densely, leaving the iris lighter and more varied",
     ],
+    marks: ["Dense cross-hatching", "Fine cluster lashes", "Contour lid lines"],
+    watch: "Leave a white dot of bare paper for the catchlight before hatching the iris — it must stay white",
+    avoid: "Drawing lashes as evenly spaced individual hairs; group them in clusters of 3–5 for realism",
   },
   {
     prompt: "Stone Wall Section",
@@ -272,6 +319,9 @@ const challenges: Challenge[] = [
       "Rough texture can be suggested with broken, slightly wobbly outlines",
       "Dense hatching in the gaps gives depth without overcomplicating the surfaces",
     ],
+    marks: ["Broken wobbly outlines", "Shadow edge lines", "Gap hatching"],
+    watch: "Draw the mortar gaps first — they define the wall more than the stones themselves",
+    avoid: "Making stones the same size or perfectly rectangular; deliberate variation is what reads as stone",
   },
   {
     prompt: "Keyhole",
@@ -288,6 +338,9 @@ const challenges: Challenge[] = [
       "The scratches from years of missed keys tell a story — add a few fine lines",
       "Try filling the entire background to make the keyhole glow white",
     ],
+    marks: ["Dense cross-hatching", "Negative shape focus", "Fine scratch lines"],
+    watch: "The keyhole shape is defined entirely by the dark plate around it — draw the darkness, not the hole",
+    avoid: "Outlining the keyhole itself; leave it as bare white paper surrounded by dense hatching",
   },
   {
     prompt: "Hands Holding",
@@ -304,6 +357,9 @@ const challenges: Challenge[] = [
       "Tendons on the back of the hand become visible under light grip tension",
       "Don't draw each finger the same width — they taper and foreshorten",
     ],
+    marks: ["Gesture mass lines", "Overlap/under clarity", "Tendon contour lines"],
+    watch: "Sketch the combined mass of both hands as a single shape before separating any fingers",
+    avoid: "Drawing fingers as tubes of equal width — they taper, foreshorten, and disappear behind each other",
   },
   {
     prompt: "Match Flame",
@@ -320,6 +376,9 @@ const challenges: Challenge[] = [
       "Light reflected on the match stick below is a thin bright stripe",
       "Smoke, if present, rises in a faint sinuous curve above the flame",
     ],
+    marks: ["Background hatching", "Irregular soft edges", "White reservation"],
+    watch: "The flame is bare white paper — draw the darkness around it, not the flame itself",
+    avoid: "A hard outline around the flame shape; flame edges dissolve, they don't have a boundary",
   },
   {
     prompt: "Cobblestone Path",
@@ -336,6 +395,9 @@ const challenges: Challenge[] = [
       "Worn, central stones are smoother; edge stones are rougher and more textured",
       "Rain puddles between stones can be rendered with horizontal reflection lines",
     ],
+    marks: ["Perspective grid lines", "Repetitive stone shapes", "Horizontal reflection marks"],
+    watch: "Mark the vanishing point and draw the joint lines first — stones must fit the perspective grid",
+    avoid: "Making all stones the same size; they compress toward the horizon and widen in the foreground",
   },
   {
     prompt: "Bicycle Wheel",
@@ -352,6 +414,9 @@ const challenges: Challenge[] = [
       "A shadow line on the underside of the rim suggests its cylindrical form",
       "Spokes behind the rim are slightly lighter — they're seen through the dark tire",
     ],
+    marks: ["Ellipse construction", "Radial spoke lines", "Rim shadow lines"],
+    watch: "Draw the full ellipse of the rim lightly before committing — all spokes must converge on the hub",
+    avoid: "Making the rim a perfect circle; unless it's dead-on front view, it will always be an ellipse",
   },
   {
     prompt: "Stack of Books",
@@ -368,6 +433,9 @@ const challenges: Challenge[] = [
       "The top edges of pages are excellent for showing cross-hatched paper texture",
       "Shadows between stacked books are thin and dark — a few close parallel lines",
     ],
+    marks: ["Box perspective lines", "Page edge hatching", "Tight shadow lines"],
+    watch: "Treat each book as a box in perspective first; spine and page details come after the form is right",
+    avoid: "Stacking books in perfect alignment — slight offsets and overhangs make it look real",
   },
   {
     prompt: "Rain on Glass",
@@ -384,6 +452,9 @@ const challenges: Challenge[] = [
       "Window frame edges give the composition a strong containing structure",
       "Condensation at the bottom of the pane can be shown with short horizontal smear marks",
     ],
+    marks: ["Vertical streak lines", "Loose impressionistic hatching", "Circular drop outlines"],
+    watch: "Vary each streak — slight curves, interruptions, and branching droplets make them read as water",
+    avoid: "Drawing the outside scene in detail; it should be blurred suggestion, not a second drawing",
   },
 ];
 
@@ -397,10 +468,8 @@ function getDailyIndex() {
 
 export default function Home() {
   const [index, setIndex] = useState(getDailyIndex);
-  const [lightboxDrawing, setLightboxDrawing] = useState<GeneratedDrawing | null>(null);
 
   const challenge = challenges[index];
-  const drawings = drawingsData[challenge.prompt] ?? [];
 
   function shuffle() {
     setIndex((prev) => {
@@ -408,7 +477,6 @@ export default function Home() {
       while (next === prev) next = Math.floor(Math.random() * challenges.length);
       return next;
     });
-    setLightboxDrawing(null);
   }
 
   return (
@@ -434,24 +502,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <p className="text-sm italic" style={{ color: "var(--ink-muted)" }}>
-          Grab your fineliners &amp; paper
-        </p>
       </header>
-
-      {/* ── Hero ── */}
-      <section className="py-12 px-8 text-center" style={{ borderBottom: "1px solid var(--ink-faint)" }}>
-        <blockquote className="text-3xl italic leading-snug mb-5" style={{ fontFamily: "var(--font-serif)", color: "var(--ink)" }}>
-          &ldquo;Every line you draw is a line you&apos;ve practiced.&rdquo;
-        </blockquote>
-        <div className="flex items-center justify-center gap-5">
-          <div className="h-px w-16" style={{ background: "var(--ink-muted)" }} />
-          <span className="text-xs tracking-widest uppercase" style={{ color: "var(--ink-muted)", letterSpacing: "0.16em" }}>
-            Daily Fineliner Challenges
-          </span>
-          <div className="h-px w-16" style={{ background: "var(--ink-muted)" }} />
-        </div>
-      </section>
 
       {/* ── Main ── */}
       <main className="max-w-3xl mx-auto px-6 py-10 space-y-6">
@@ -516,105 +567,47 @@ export default function Home() {
             </ol>
           </div>
 
-          {/* Interpretations */}
+          {/* Technique Breakdown */}
           <div style={{ border: "1px solid #cec9c0", borderRadius: 12, background: "var(--paper)" }} className="p-7">
-            <h2
-              className="text-xs tracking-widest uppercase font-medium mb-5 flex items-center gap-2"
-              style={{ color: "var(--ink-muted)", letterSpacing: "0.14em" }}
-            >
-              <GalleryIcon />
-              Interpretations · click for guide
+            <h2 className="text-xl font-bold mb-1" style={{ fontFamily: "var(--font-serif)", color: "var(--ink)" }}>
+              Technique Breakdown
             </h2>
+            <p className="text-xs uppercase tracking-widest mb-6" style={{ color: "var(--ink-muted)", letterSpacing: "0.14em" }}>
+              {challenge.technique}
+            </p>
 
-            <div className="grid grid-cols-2 gap-2">
-              {drawings.map((drawing, i) => (
-                <button
+            <p className="text-xs uppercase tracking-widest mb-3 font-medium" style={{ color: "var(--ink-muted)", letterSpacing: "0.12em" }}>
+              Mark types
+            </p>
+            <div className="flex flex-wrap gap-2 mb-6">
+              {challenge.marks.map((mark, i) => (
+                <span
                   key={i}
-                  onClick={() => setLightboxDrawing(drawing)}
-                  className="group relative overflow-hidden"
-                  style={{ aspectRatio: "1/1", borderRadius: 6, background: "var(--paper)", border: "1px solid #cec9c0" }}
-                  title={drawing.title}
+                  className="text-xs px-3 py-1"
+                  style={{ border: "1px solid #cec9c0", borderRadius: 4, color: "var(--ink)" }}
                 >
-                  <div
-                    className="w-full h-full"
-                    dangerouslySetInnerHTML={{
-                      __html: drawing.svg.replace("<svg ", '<svg width="100%" height="100%" '),
-                    }}
-                  />
-                  <div
-                    className="absolute inset-0 flex items-end opacity-0 group-hover:opacity-100 transition-opacity p-2"
-                    style={{ background: "linear-gradient(to top, rgba(247,244,239,0.95) 0%, transparent 55%)" }}
-                  >
-                    <span className="text-xs leading-tight" style={{ color: "var(--ink)" }}>{drawing.title}</span>
-                  </div>
-                </button>
+                  {mark}
+                </span>
               ))}
             </div>
 
-            <p className="text-xs italic mt-3" style={{ color: "var(--ink-muted)" }}>
-              AI-generated · click any drawing to see the step-by-step guide
-            </p>
+            <div className="space-y-4">
+              <div className="p-4 rounded-lg" style={{ background: "var(--paper-dark)" }}>
+                <p className="text-xs uppercase tracking-widest font-medium mb-1.5" style={{ color: "var(--ink-muted)", letterSpacing: "0.12em" }}>
+                  Focus on
+                </p>
+                <p className="text-sm leading-relaxed" style={{ color: "#4a4a4a" }}>{challenge.watch}</p>
+              </div>
+              <div className="p-4 rounded-lg" style={{ background: "var(--paper-dark)" }}>
+                <p className="text-xs uppercase tracking-widest font-medium mb-1.5" style={{ color: "var(--ink-muted)", letterSpacing: "0.12em" }}>
+                  Watch out for
+                </p>
+                <p className="text-sm leading-relaxed" style={{ color: "#4a4a4a" }}>{challenge.avoid}</p>
+              </div>
+            </div>
           </div>
         </div>
       </main>
-
-      {/* Lightbox */}
-      {lightboxDrawing && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-10"
-          style={{ background: "rgba(0,0,0,0.82)" }}
-          onClick={() => setLightboxDrawing(null)}
-        >
-          <div
-            className="relative w-full max-w-2xl flex flex-col md:flex-row overflow-hidden"
-            style={{ background: "var(--paper)", borderRadius: 12, maxHeight: "90vh" }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setLightboxDrawing(null)}
-              className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center"
-              style={{ border: "1px solid #cec9c0", borderRadius: 6, background: "var(--paper)", color: "var(--ink)" }}
-            >
-              <CloseIcon />
-            </button>
-
-            {/* SVG panel */}
-            <div className="flex-shrink-0 flex items-center justify-center p-8" style={{ minWidth: 220 }}>
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: lightboxDrawing.svg.replace("<svg ", '<svg width="220" height="220" '),
-                }}
-              />
-            </div>
-
-            {/* Steps panel */}
-            <div
-              className="flex-1 overflow-y-auto p-7 pt-10"
-              style={{ borderTop: "1px solid #cec9c0", borderLeft: "1px solid #cec9c0" }}
-            >
-              <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "var(--ink-muted)", letterSpacing: "0.14em" }}>
-                How to draw this
-              </p>
-              <h3 className="text-xl font-bold mb-5" style={{ fontFamily: "var(--font-serif)", color: "var(--ink)" }}>
-                {lightboxDrawing.title}
-              </h3>
-              <ol className="space-y-4">
-                {lightboxDrawing.steps.map((step, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span
-                      className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold"
-                      style={{ border: "1px solid var(--ink)", color: "var(--ink)" }}
-                    >
-                      {i + 1}
-                    </span>
-                    <span className="text-sm leading-relaxed" style={{ color: "#4a4a4a" }}>{step}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -661,24 +654,6 @@ function LightbulbIcon() {
   );
 }
 
-function CloseIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
-  );
-}
-
-function GalleryIcon({ size = 16 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-      <circle cx="8.5" cy="8.5" r="1.5" />
-      <polyline points="21 15 16 10 5 21" />
-    </svg>
-  );
-}
 
 // ── Difficulty meter ───────────────────────────────────
 
