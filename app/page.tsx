@@ -401,6 +401,12 @@ export default function Home() {
 
   const challenge = challenges[index];
   const drawings = drawingsData[challenge.prompt] ?? [];
+  const challengeNum = index + 1;
+
+  const today = new Date();
+  const dateStr = today
+    .toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
+    .toUpperCase();
 
   function shuffle() {
     setIndex((prev) => {
@@ -413,147 +419,309 @@ export default function Home() {
 
   return (
     <div style={{ background: "var(--background)", minHeight: "100vh" }}>
-      {/* ── Header ── */}
-      <header
-        className="flex items-center justify-between px-8 py-4"
-        style={{ borderBottom: "1px solid var(--ink-faint)" }}
-      >
-        <div className="flex items-center gap-3">
-          <div
-            className="w-10 h-10 flex items-center justify-center"
-            style={{ border: "1.5px solid var(--ink)", borderRadius: 8 }}
-          >
-            <PenIcon />
-          </div>
-          <div>
-            <div className="font-bold text-xl leading-tight" style={{ fontFamily: "var(--font-serif)", color: "var(--ink)" }}>
+
+      {/* ── Masthead Header ── */}
+      <header>
+        <div style={{ borderTop: "3px solid var(--ink)", borderBottom: "1px solid var(--ink)" }}>
+          <div className="text-center px-6 py-5">
+            <div
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontStyle: "italic",
+                fontWeight: 700,
+                fontSize: "clamp(2.8rem, 8vw, 5.5rem)",
+                lineHeight: 1,
+                color: "var(--ink)",
+                letterSpacing: "-0.015em",
+              }}
+            >
               InkWork
             </div>
-            <div className="text-xs tracking-widest uppercase" style={{ color: "var(--ink-muted)", letterSpacing: "0.14em" }}>
-              Daily Drawing Challenges
-            </div>
           </div>
         </div>
-        <p className="text-sm italic" style={{ color: "var(--ink-muted)" }}>
-          Grab your fineliners &amp; paper
-        </p>
+        <div style={{ borderBottom: "3px solid var(--ink)" }}>
+          <div className="max-w-4xl mx-auto px-6 py-2 flex items-center justify-between">
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.6rem",
+                color: "var(--ink-muted)",
+                letterSpacing: "0.06em",
+              }}
+            >
+              {dateStr}
+            </span>
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.6rem",
+                color: "var(--ink)",
+                letterSpacing: "0.14em",
+                fontWeight: 600,
+              }}
+            >
+              DAILY FINELINER CHALLENGES
+            </span>
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.6rem",
+                color: "var(--ink-muted)",
+                letterSpacing: "0.06em",
+              }}
+            >
+              GRAB YOUR PENS &amp; PAPER
+            </span>
+          </div>
+        </div>
       </header>
 
-      {/* ── Hero ── */}
-      <section className="py-12 px-8 text-center" style={{ borderBottom: "1px solid var(--ink-faint)" }}>
-        <blockquote className="text-3xl italic leading-snug mb-5" style={{ fontFamily: "var(--font-serif)", color: "var(--ink)" }}>
-          &ldquo;Every line you draw is a line you&apos;ve practiced.&rdquo;
-        </blockquote>
-        <div className="flex items-center justify-center gap-5">
-          <div className="h-px w-16" style={{ background: "var(--ink-muted)" }} />
-          <span className="text-xs tracking-widest uppercase" style={{ color: "var(--ink-muted)", letterSpacing: "0.16em" }}>
-            Daily Fineliner Challenges
-          </span>
-          <div className="h-px w-16" style={{ background: "var(--ink-muted)" }} />
-        </div>
-      </section>
-
       {/* ── Main ── */}
-      <main className="max-w-3xl mx-auto px-6 py-10 space-y-6">
+      <main className="max-w-4xl mx-auto px-6 py-10 space-y-5">
+
         {/* Challenge card */}
-        <div style={{ border: "1px solid #cec9c0", borderRadius: 12, background: "var(--paper)" }}>
-          <div className="p-8">
-            <div className="flex items-start justify-between mb-6">
-              <span className="text-xs tracking-widest uppercase font-medium" style={{ color: "var(--ink-muted)", letterSpacing: "0.14em" }}>
-                Today&apos;s Challenge
+        <div
+          className="ink-reveal relative overflow-hidden"
+          style={{
+            border: "1px solid #cec9c0",
+            borderRadius: 8,
+            background: "var(--paper-card)",
+            animationDelay: "0ms",
+          }}
+        >
+          {/* Watermark number */}
+          <div
+            className="absolute top-0 right-5 leading-none select-none pointer-events-none"
+            aria-hidden="true"
+            style={{
+              fontFamily: "var(--font-serif)",
+              fontStyle: "italic",
+              fontWeight: 700,
+              fontSize: "clamp(7rem, 18vw, 13rem)",
+              color: "var(--ink)",
+              opacity: 0.042,
+              lineHeight: 0.82,
+            }}
+          >
+            {challengeNum}
+          </div>
+
+          <div className="p-8 md:p-10 relative" style={{ zIndex: 1 }}>
+            <div className="flex items-start justify-between mb-5">
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.62rem",
+                  color: "var(--ink-muted)",
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Today&apos;s Challenge &middot; No.{String(challengeNum).padStart(2, "0")}
               </span>
               <button
                 onClick={shuffle}
                 title="Try a different challenge"
                 className="w-9 h-9 flex items-center justify-center transition-colors hover:bg-black/5"
-                style={{ border: "1px solid #cec9c0", borderRadius: 8 }}
+                style={{ border: "1px solid #cec9c0", borderRadius: 6, flexShrink: 0 }}
               >
                 <ShuffleIcon />
               </button>
             </div>
-            <h1 className="text-4xl font-bold leading-tight mb-4" style={{ fontFamily: "var(--font-serif)", color: "var(--ink)" }}>
+
+            <h1
+              className="font-bold leading-tight mb-4"
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontSize: "clamp(2.4rem, 6vw, 4rem)",
+                color: "var(--ink)",
+                letterSpacing: "-0.02em",
+              }}
+            >
               {challenge.prompt}
             </h1>
-            <p className="text-base leading-relaxed mb-7" style={{ color: "#4a4a4a" }}>
+
+            <p
+              className="text-base leading-relaxed mb-7"
+              style={{ color: "var(--ink-muted)", maxWidth: "58ch" }}
+            >
               {challenge.description}
             </p>
-            <div className="flex items-center gap-5 flex-wrap">
+
+            <div
+              className="flex items-center gap-5 flex-wrap"
+              style={{ borderTop: "1px solid var(--ink-faint)", paddingTop: "1.1rem" }}
+            >
               <DifficultyMeter level={challenge.difficulty} label={challenge.difficultyLabel} />
-              <div className="flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-muted)" }}>
-                <ClockIcon />
-                <span>{challenge.time}</span>
+              <div className="flex items-center gap-2">
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.58rem",
+                    color: "var(--ink-muted)",
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Time
+                </span>
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.72rem",
+                    color: "var(--ink)",
+                  }}
+                >
+                  {challenge.time}
+                </span>
               </div>
-              <span
-                className="text-xs tracking-widest uppercase px-3 py-1.5"
-                style={{ border: "1px solid var(--ink)", borderRadius: 4, color: "var(--ink)", letterSpacing: "0.12em" }}
+              <div
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.58rem",
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: "var(--ink)",
+                  border: "1px solid var(--ink)",
+                  borderRadius: 2,
+                  padding: "0.22rem 0.6rem",
+                }}
               >
                 {challenge.technique}
-              </span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Two-column section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
           {/* Tips */}
-          <div style={{ border: "1px solid #cec9c0", borderRadius: 12, background: "var(--paper)" }} className="p-7">
-            <h2 className="text-xl font-bold mb-6 flex items-center gap-2" style={{ fontFamily: "var(--font-serif)", color: "var(--ink)" }}>
-              <LightbulbIcon />
-              Tips &amp; Techniques
-            </h2>
-            <ol className="space-y-4">
-              {challenge.tips.map((tip, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span
-                    className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold"
-                    style={{ border: "1px solid var(--ink)", color: "var(--ink)" }}
-                  >
-                    {i + 1}
-                  </span>
-                  <span className="text-sm leading-relaxed" style={{ color: "#4a4a4a" }}>{tip}</span>
-                </li>
-              ))}
-            </ol>
+          <div
+            className="ink-reveal"
+            style={{
+              border: "1px solid #cec9c0",
+              borderRadius: 8,
+              background: "var(--paper-card)",
+              animationDelay: "90ms",
+            }}
+          >
+            <div className="p-7">
+              <div style={{ borderBottom: "1px solid var(--ink-faint)", marginBottom: "1.2rem", paddingBottom: "0.7rem" }}>
+                <h2
+                  className="font-bold"
+                  style={{
+                    fontFamily: "var(--font-serif)",
+                    fontSize: "1.2rem",
+                    color: "var(--ink)",
+                  }}
+                >
+                  Tips &amp; Techniques
+                </h2>
+              </div>
+              <ol className="space-y-4">
+                {challenge.tips.map((tip, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "0.68rem",
+                        color: "var(--ink-muted)",
+                        flexShrink: 0,
+                        paddingTop: "0.18rem",
+                        minWidth: "1.6rem",
+                      }}
+                    >
+                      {String(i + 1).padStart(2, "0")}.
+                    </span>
+                    <span className="text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
+                      {tip}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
           </div>
 
-          {/* Interpretations */}
-          <div style={{ border: "1px solid #cec9c0", borderRadius: 12, background: "var(--paper)" }} className="p-7">
-            <h2
-              className="text-xs tracking-widest uppercase font-medium mb-5 flex items-center gap-2"
-              style={{ color: "var(--ink-muted)", letterSpacing: "0.14em" }}
-            >
-              <GalleryIcon />
-              Interpretations · click for guide
-            </h2>
-
-            <div className="grid grid-cols-2 gap-2">
-              {drawings.map((drawing, i) => (
-                <button
-                  key={i}
-                  onClick={() => setLightboxDrawing(drawing)}
-                  className="group relative overflow-hidden"
-                  style={{ aspectRatio: "1/1", borderRadius: 6, background: "var(--paper)", border: "1px solid #cec9c0" }}
-                  title={drawing.title}
+          {/* Interpretations gallery */}
+          <div
+            className="ink-reveal"
+            style={{
+              border: "1px solid #cec9c0",
+              borderRadius: 8,
+              background: "var(--paper-card)",
+              animationDelay: "180ms",
+            }}
+          >
+            <div className="p-7">
+              <div style={{ borderBottom: "1px solid var(--ink-faint)", marginBottom: "1.2rem", paddingBottom: "0.7rem" }}>
+                <h2
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.6rem",
+                    color: "var(--ink-muted)",
+                    letterSpacing: "0.14em",
+                    textTransform: "uppercase",
+                  }}
                 >
-                  <div
-                    className="w-full h-full"
-                    dangerouslySetInnerHTML={{
-                      __html: drawing.svg.replace("<svg ", '<svg width="100%" height="100%" '),
-                    }}
-                  />
-                  <div
-                    className="absolute inset-0 flex items-end opacity-0 group-hover:opacity-100 transition-opacity p-2"
-                    style={{ background: "linear-gradient(to top, rgba(247,244,239,0.95) 0%, transparent 55%)" }}
-                  >
-                    <span className="text-xs leading-tight" style={{ color: "var(--ink)" }}>{drawing.title}</span>
-                  </div>
-                </button>
-              ))}
-            </div>
+                  Interpretations &middot; click for guide
+                </h2>
+              </div>
 
-            <p className="text-xs italic mt-3" style={{ color: "var(--ink-muted)" }}>
-              AI-generated · click any drawing to see the step-by-step guide
-            </p>
+              <div className="grid grid-cols-2 gap-2">
+                {drawings.map((drawing, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setLightboxDrawing(drawing)}
+                    className="group relative overflow-hidden"
+                    style={{
+                      aspectRatio: "1/1",
+                      borderRadius: 4,
+                      background: "var(--paper)",
+                      border: "1px solid #d4cec4",
+                    }}
+                    title={drawing.title}
+                  >
+                    <div
+                      className="w-full h-full"
+                      dangerouslySetInnerHTML={{
+                        __html: drawing.svg.replace("<svg ", '<svg width="100%" height="100%" '),
+                      }}
+                    />
+                    <div
+                      className="absolute inset-0 flex items-end opacity-0 group-hover:opacity-100 transition-opacity p-2"
+                      style={{
+                        background:
+                          "linear-gradient(to top, rgba(243,237,226,0.97) 0%, transparent 60%)",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontFamily: "var(--font-mono)",
+                          fontSize: "0.58rem",
+                          color: "var(--ink)",
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        {drawing.title}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              <p
+                className="italic mt-3"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.58rem",
+                  color: "var(--ink-muted)",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                AI-generated &middot; click any drawing to see the step-by-step guide
+              </p>
+            </div>
           </div>
         </div>
       </main>
@@ -562,24 +730,45 @@ export default function Home() {
       {lightboxDrawing && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-10"
-          style={{ background: "rgba(0,0,0,0.82)" }}
+          style={{ background: "rgba(26,20,16,0.88)" }}
           onClick={() => setLightboxDrawing(null)}
         >
           <div
             className="relative w-full max-w-2xl flex flex-col md:flex-row overflow-hidden"
-            style={{ background: "var(--paper)", borderRadius: 12, maxHeight: "90vh" }}
+            style={{ background: "var(--paper-card)", borderRadius: 8, maxHeight: "90vh" }}
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Lightbox top rule */}
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 3,
+                background: "var(--ink)",
+                zIndex: 10,
+              }}
+            />
+
             <button
               onClick={() => setLightboxDrawing(null)}
-              className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center"
-              style={{ border: "1px solid #cec9c0", borderRadius: 6, background: "var(--paper)", color: "var(--ink)" }}
+              className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center"
+              style={{
+                border: "1px solid #cec9c0",
+                borderRadius: 4,
+                background: "var(--paper-card)",
+                color: "var(--ink)",
+              }}
             >
               <CloseIcon />
             </button>
 
             {/* SVG panel */}
-            <div className="flex-shrink-0 flex items-center justify-center p-8" style={{ minWidth: 220 }}>
+            <div
+              className="flex-shrink-0 flex items-center justify-center"
+              style={{ padding: "2.5rem 2rem 2rem", minWidth: 220, background: "var(--paper)" }}
+            >
               <div
                 dangerouslySetInnerHTML={{
                   __html: lightboxDrawing.svg.replace("<svg ", '<svg width="220" height="220" '),
@@ -589,25 +778,57 @@ export default function Home() {
 
             {/* Steps panel */}
             <div
-              className="flex-1 overflow-y-auto p-7 pt-10"
-              style={{ borderTop: "1px solid #cec9c0", borderLeft: "1px solid #cec9c0" }}
+              className="flex-1 overflow-y-auto"
+              style={{
+                padding: "2.5rem 1.75rem 1.75rem",
+                borderLeft: "1px solid #cec9c0",
+                borderTop: "1px solid #cec9c0",
+              }}
             >
-              <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "var(--ink-muted)", letterSpacing: "0.14em" }}>
+              <p
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.58rem",
+                  color: "var(--ink-muted)",
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
+                  marginBottom: "0.3rem",
+                }}
+              >
                 How to draw this
               </p>
-              <h3 className="text-xl font-bold mb-5" style={{ fontFamily: "var(--font-serif)", color: "var(--ink)" }}>
+              <h3
+                className="font-bold mb-5"
+                style={{
+                  fontFamily: "var(--font-serif)",
+                  fontSize: "1.3rem",
+                  color: "var(--ink)",
+                  lineHeight: 1.25,
+                }}
+              >
                 {lightboxDrawing.title}
               </h3>
               <ol className="space-y-4">
                 {lightboxDrawing.steps.map((step, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <span
-                      className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold"
-                      style={{ border: "1px solid var(--ink)", color: "var(--ink)" }}
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "0.68rem",
+                        color: "var(--ink-muted)",
+                        flexShrink: 0,
+                        paddingTop: "0.18rem",
+                        minWidth: "1.6rem",
+                      }}
                     >
-                      {i + 1}
+                      {String(i + 1).padStart(2, "0")}.
                     </span>
-                    <span className="text-sm leading-relaxed" style={{ color: "#4a4a4a" }}>{step}</span>
+                    <span
+                      className="text-sm leading-relaxed"
+                      style={{ color: "var(--foreground)" }}
+                    >
+                      {step}
+                    </span>
                   </li>
                 ))}
               </ol>
@@ -621,15 +842,6 @@ export default function Home() {
 
 // ── Icons ──────────────────────────────────────────────
 
-function PenIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 20h9" />
-      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-    </svg>
-  );
-}
-
 function ShuffleIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -642,40 +854,11 @@ function ShuffleIcon() {
   );
 }
 
-function ClockIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  );
-}
-
-function LightbulbIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="9" y1="18" x2="15" y2="18" />
-      <line x1="10" y1="22" x2="14" y2="22" />
-      <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14" />
-    </svg>
-  );
-}
-
 function CloseIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <line x1="18" y1="6" x2="6" y2="18" />
       <line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
-  );
-}
-
-function GalleryIcon({ size = 16 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-      <circle cx="8.5" cy="8.5" r="1.5" />
-      <polyline points="21 15 16 10 5 21" />
     </svg>
   );
 }
