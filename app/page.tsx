@@ -419,7 +419,7 @@ export default function Home() {
   }
 
   return (
-    <div style={{ background: "var(--background)", minHeight: "100vh" }}>
+    <div style={{ background: "#0f0c08", minHeight: "100vh" }}>
 
       {/* ── Header ── */}
       <header style={{ borderBottom: "1px solid var(--accent-dim)" }}>
