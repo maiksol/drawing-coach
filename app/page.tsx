@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
+import { drawingsData, type GeneratedDrawing } from "../lib/drawings-data";
 
 type Difficulty = 1 | 2 | 3;
 
@@ -13,13 +14,6 @@ interface Challenge {
   difficultyLabel: string;
   time: string;
   tips: string[];
-}
-
-interface Drawing {
-  url: string;
-  title: string;
-  artist: string;
-  objectUrl: string;
 }
 
 const challenges: Challenge[] = [
@@ -393,44 +387,6 @@ const challenges: Challenge[] = [
   },
 ];
 
-const MET_API = "https://collectionapi.metmuseum.org/public/collection/v1";
-
-async function fetchDrawings(searchTerms: string): Promise<Drawing[]> {
-  // Try Drawings & Prints department first, fall back to all departments
-  const queries = [
-    `${MET_API}/search?q=${encodeURIComponent(searchTerms)}&isPublicDomain=true&hasImages=true&departmentId=9`,
-    `${MET_API}/search?q=${encodeURIComponent(searchTerms)}&isPublicDomain=true&hasImages=true`,
-  ];
-
-  let ids: number[] = [];
-  for (const url of queries) {
-    const res = await fetch(url);
-    const data = await res.json();
-    if (data.objectIDs?.length) {
-      ids = data.objectIDs.slice(0, 12);
-      break;
-    }
-  }
-  if (!ids.length) return [];
-
-  const details = await Promise.all(
-    ids.map((id) =>
-      fetch(`${MET_API}/objects/${id}`)
-        .then((r) => r.json())
-        .catch(() => null)
-    )
-  );
-
-  return details
-    .filter((d) => d?.primaryImageSmall)
-    .slice(0, 4)
-    .map((d) => ({
-      url: d.primaryImageSmall,
-      title: d.title ?? "Untitled",
-      artist: d.artistDisplayName ?? "",
-      objectUrl: d.objectURL ?? "",
-    }));
-}
 
 function getDailyIndex() {
   const now = new Date();
@@ -441,23 +397,10 @@ function getDailyIndex() {
 
 export default function Home() {
   const [index, setIndex] = useState(getDailyIndex);
-  const [drawings, setDrawings] = useState<Drawing[]>([]);
-  const [loadingDrawings, setLoadingDrawings] = useState(false);
-  const [lightboxDrawing, setLightboxDrawing] = useState<Drawing | null>(null);
-  const abortRef = useRef<AbortController | null>(null);
+  const [lightboxDrawing, setLightboxDrawing] = useState<GeneratedDrawing | null>(null);
 
   const challenge = challenges[index];
-
-  useEffect(() => {
-    abortRef.current?.abort();
-    setDrawings([]);
-    setLoadingDrawings(true);
-
-    fetchDrawings(challenge.searchTerms).then((results) => {
-      setDrawings(results);
-      setLoadingDrawings(false);
-    });
-  }, [challenge.searchTerms]);
+  const drawings = drawingsData[challenge.prompt] ?? [];
 
   function shuffle() {
     setIndex((prev) => {
@@ -573,63 +516,43 @@ export default function Home() {
             </ol>
           </div>
 
-          {/* Inspiration gallery */}
+          {/* Interpretations */}
           <div style={{ border: "1px solid #cec9c0", borderRadius: 12, background: "var(--paper)" }} className="p-7">
             <h2
               className="text-xs tracking-widest uppercase font-medium mb-5 flex items-center gap-2"
               style={{ color: "var(--ink-muted)", letterSpacing: "0.14em" }}
             >
               <GalleryIcon />
-              Inspiration Gallery
+              Interpretations · click for guide
             </h2>
 
-            {loadingDrawings ? (
-              <div className="grid grid-cols-2 gap-2">
-                {[0, 1, 2, 3].map((i) => (
+            <div className="grid grid-cols-2 gap-2">
+              {drawings.map((drawing, i) => (
+                <button
+                  key={i}
+                  onClick={() => setLightboxDrawing(drawing)}
+                  className="group relative overflow-hidden"
+                  style={{ aspectRatio: "1/1", borderRadius: 6, background: "var(--paper)", border: "1px solid #cec9c0" }}
+                  title={drawing.title}
+                >
                   <div
-                    key={i}
-                    className="animate-pulse"
-                    style={{ aspectRatio: "4/3", borderRadius: 6, background: "var(--paper-dark)" }}
+                    className="w-full h-full"
+                    dangerouslySetInnerHTML={{
+                      __html: drawing.svg.replace("<svg ", '<svg width="100%" height="100%" '),
+                    }}
                   />
-                ))}
-              </div>
-            ) : drawings.length === 0 ? (
-              <div
-                className="flex flex-col items-center justify-center gap-2"
-                style={{ aspectRatio: "4/3", background: "var(--paper-dark)", borderRadius: 8, border: "1px solid #cec9c0" }}
-              >
-                <GalleryIcon size={28} />
-                <span className="text-sm" style={{ color: "var(--ink-muted)" }}>No drawings found</span>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-2">
-                {drawings.map((drawing, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setLightboxDrawing(drawing)}
-                    className="group relative overflow-hidden"
-                    style={{ aspectRatio: "4/3", borderRadius: 6, background: "var(--paper-dark)" }}
-                    title={drawing.title}
+                  <div
+                    className="absolute inset-0 flex items-end opacity-0 group-hover:opacity-100 transition-opacity p-2"
+                    style={{ background: "linear-gradient(to top, rgba(247,244,239,0.95) 0%, transparent 55%)" }}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={drawing.url}
-                      alt={drawing.title}
-                      className="w-full h-full object-cover"
-                    />
-                    <div
-                      className="absolute inset-0 flex items-end opacity-0 group-hover:opacity-100 transition-opacity p-2"
-                      style={{ background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%)" }}
-                    >
-                      <span className="text-white text-xs leading-tight line-clamp-2">{drawing.title}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
+                    <span className="text-xs leading-tight" style={{ color: "var(--ink)" }}>{drawing.title}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
 
             <p className="text-xs italic mt-3" style={{ color: "var(--ink-muted)" }}>
-              Works from The Metropolitan Museum of Art · Public domain
+              AI-generated · click any drawing to see the step-by-step guide
             </p>
           </div>
         </div>
@@ -638,40 +561,57 @@ export default function Home() {
       {/* Lightbox */}
       {lightboxDrawing && (
         <div
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center p-6"
-          style={{ background: "rgba(0,0,0,0.9)" }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-10"
+          style={{ background: "rgba(0,0,0,0.82)" }}
           onClick={() => setLightboxDrawing(null)}
         >
-          <button
-            onClick={() => setLightboxDrawing(null)}
-            className="absolute top-5 right-5 w-10 h-10 flex items-center justify-center"
-            style={{ color: "#fff", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 8 }}
-          >
-            <CloseIcon />
-          </button>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={lightboxDrawing.url.replace("primaryImageSmall", "primaryImage")}
-            alt={lightboxDrawing.title}
-            className="max-w-full max-h-[80vh] object-contain"
-            style={{ borderRadius: 4, boxShadow: "0 8px 40px rgba(0,0,0,0.5)" }}
+          <div
+            className="relative w-full max-w-2xl flex flex-col md:flex-row overflow-hidden"
+            style={{ background: "var(--paper)", borderRadius: 12, maxHeight: "90vh" }}
             onClick={(e) => e.stopPropagation()}
-          />
-          <div className="mt-4 text-center" onClick={(e) => e.stopPropagation()}>
-            <p className="text-white text-sm font-medium">{lightboxDrawing.title}</p>
-            {lightboxDrawing.artist && (
-              <p className="text-white/60 text-xs mt-1">{lightboxDrawing.artist}</p>
-            )}
-            {lightboxDrawing.objectUrl && (
-              <a
-                href={lightboxDrawing.objectUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/40 text-xs mt-1 underline inline-block hover:text-white/70"
-              >
-                View on metmuseum.org
-              </a>
-            )}
+          >
+            <button
+              onClick={() => setLightboxDrawing(null)}
+              className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center"
+              style={{ border: "1px solid #cec9c0", borderRadius: 6, background: "var(--paper)", color: "var(--ink)" }}
+            >
+              <CloseIcon />
+            </button>
+
+            {/* SVG panel */}
+            <div className="flex-shrink-0 flex items-center justify-center p-8" style={{ minWidth: 220 }}>
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: lightboxDrawing.svg.replace("<svg ", '<svg width="220" height="220" '),
+                }}
+              />
+            </div>
+
+            {/* Steps panel */}
+            <div
+              className="flex-1 overflow-y-auto p-7 pt-10"
+              style={{ borderTop: "1px solid #cec9c0", borderLeft: "1px solid #cec9c0" }}
+            >
+              <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "var(--ink-muted)", letterSpacing: "0.14em" }}>
+                How to draw this
+              </p>
+              <h3 className="text-xl font-bold mb-5" style={{ fontFamily: "var(--font-serif)", color: "var(--ink)" }}>
+                {lightboxDrawing.title}
+              </h3>
+              <ol className="space-y-4">
+                {lightboxDrawing.steps.map((step, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span
+                      className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold"
+                      style={{ border: "1px solid var(--ink)", color: "var(--ink)" }}
+                    >
+                      {i + 1}
+                    </span>
+                    <span className="text-sm leading-relaxed" style={{ color: "#4a4a4a" }}>{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
           </div>
         </div>
       )}
