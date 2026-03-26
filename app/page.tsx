@@ -1,28 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 type Difficulty = 1 | 2 | 3;
 
 interface Challenge {
   prompt: string;
+  searchTerms: string;
   description: string;
   technique: string;
   difficulty: Difficulty;
   difficultyLabel: string;
   time: string;
   tips: string[];
-  imageUrl: string;
 }
 
-// Images: Unsplash source URLs with subject-specific keywords.
-// Each URL returns a photo matching the challenge subject.
+interface Drawing {
+  url: string;
+  title: string;
+  artist: string;
+  objectUrl: string;
+}
+
 const challenges: Challenge[] = [
   {
     prompt: "Crumpled Paper Study",
-    imageUrl: "https://images.unsplash.com/photo-bYo6RdWP2cY?w=800&auto=format&q=80",
-    description:
-      "Crumple a piece of paper, smooth it slightly, and draw it. A deceptively challenging exercise in rendering complex light and shadow.",
+    searchTerms: "paper still life white",
+    description: "Crumple a piece of paper, smooth it slightly, and draw it. A deceptively challenging exercise in rendering complex light and shadow.",
     technique: "Form & Shading",
     difficulty: 1,
     difficultyLabel: "Beginner",
@@ -37,9 +41,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Twisted Roots",
-    imageUrl: "https://source.unsplash.com/800x600/?tree,roots,gnarled",
-    description:
-      "Find a tree with exposed roots or a gnarled branch and draw the twisting forms. Focus on the rhythm and energy in organic shapes.",
+    searchTerms: "tree roots landscape",
+    description: "Find a tree with exposed roots or a gnarled branch and draw the twisting forms. Focus on the rhythm and energy in organic shapes.",
     technique: "Cross-hatching",
     difficulty: 2,
     difficultyLabel: "Intermediate",
@@ -54,9 +57,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Weathered Door",
-    imageUrl: "https://source.unsplash.com/800x600/?old,wooden,door,peeling",
-    description:
-      "Draw an old door with peeling paint, worn handle, or cracked wood. Every mark of age is a drawing opportunity.",
+    searchTerms: "door architectural old",
+    description: "Draw an old door with peeling paint, worn handle, or cracked wood. Every mark of age is a drawing opportunity.",
     technique: "Line Weight Variation",
     difficulty: 2,
     difficultyLabel: "Intermediate",
@@ -71,9 +73,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Old Hands",
-    imageUrl: "https://source.unsplash.com/800x600/?wrinkled,hands,elderly",
-    description:
-      "Draw aged hands — your own, or from a reference. The map of tendons and wrinkles is one of the richest subjects in fineliner work.",
+    searchTerms: "hands figure study",
+    description: "Draw aged hands — your own, or from a reference. The map of tendons and wrinkles is one of the richest subjects in fineliner work.",
     technique: "Contour Lines",
     difficulty: 3,
     difficultyLabel: "Advanced",
@@ -88,9 +89,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Tangled Wire",
-    imageUrl: "https://source.unsplash.com/800x600/?wire,coil,metal,tangle",
-    description:
-      "Draw a coil of wire, a set of headphones, or tangled earbuds. Follow the line in space with your fineliner.",
+    searchTerms: "wire coil abstract lines",
+    description: "Draw a coil of wire, a set of headphones, or tangled earbuds. Follow the line in space with your fineliner.",
     technique: "Negative Space",
     difficulty: 2,
     difficultyLabel: "Intermediate",
@@ -105,9 +105,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Feather Study",
-    imageUrl: "https://source.unsplash.com/800x600/?feather,macro,closeup",
-    description:
-      "Find a feather or use a close-up reference. The delicate parallel structure of barbs is perfect for fineliner techniques.",
+    searchTerms: "feather bird natural history",
+    description: "Find a feather or use a close-up reference. The delicate parallel structure of barbs is perfect for fineliner techniques.",
     technique: "Fine Parallel Lines",
     difficulty: 1,
     difficultyLabel: "Beginner",
@@ -122,9 +121,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Rope Knot",
-    imageUrl: "https://source.unsplash.com/800x600/?rope,knot,nautical",
-    description:
-      "Tie a knot and draw it — or find a knotted rope, net, or macramé. Tracking the path of a single strand is an excellent spatial exercise.",
+    searchTerms: "rope knot nautical",
+    description: "Tie a knot and draw it — or find a knotted rope, net, or macramé. Tracking the path of a single strand is an excellent spatial exercise.",
     technique: "Continuous Line",
     difficulty: 2,
     difficultyLabel: "Intermediate",
@@ -139,9 +137,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Dried Flower",
-    imageUrl: "https://source.unsplash.com/800x600/?dried,flower,botanical",
-    description:
-      "Draw a dried flower — rose, poppy seed head, or thistle. The fragile, papery quality of dried botanicals suits delicate fineliner work.",
+    searchTerms: "botanical flower illustration",
+    description: "Draw a dried flower — rose, poppy seed head, or thistle. The fragile, papery quality of dried botanicals suits delicate fineliner work.",
     technique: "Delicate Cross-hatching",
     difficulty: 1,
     difficultyLabel: "Beginner",
@@ -156,9 +153,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Street Lamp at Night",
-    imageUrl: "https://source.unsplash.com/800x600/?street,lamp,night,glow",
-    description:
-      "Draw a lamp post with radiating light. This is a study in depicting glow and brightness using only black lines on white paper.",
+    searchTerms: "street lamp night city",
+    description: "Draw a lamp post with radiating light. This is a study in depicting glow and brightness using only black lines on white paper.",
     technique: "Radiating Lines",
     difficulty: 2,
     difficultyLabel: "Intermediate",
@@ -173,9 +169,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Spider Web",
-    imageUrl: "https://source.unsplash.com/800x600/?spider,web,dew,drops",
-    description:
-      "Draw a spider web — ideally from observation with backlighting to see the threads. A study in geometry, repetition, and delicacy.",
+    searchTerms: "spider web insect",
+    description: "Draw a spider web — ideally from observation with backlighting to see the threads. A study in geometry, repetition, and delicacy.",
     technique: "Flowing Fine Lines",
     difficulty: 1,
     difficultyLabel: "Beginner",
@@ -190,9 +185,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Worn Boot",
-    imageUrl: "https://source.unsplash.com/800x600/?worn,boot,leather,old",
-    description:
-      "Draw an old, worn-in boot or shoe. The creases, scuffs, and lace-holes are a map of lived experience.",
+    searchTerms: "boot shoe still life",
+    description: "Draw an old, worn-in boot or shoe. The creases, scuffs, and lace-holes are a map of lived experience.",
     technique: "Layered Hatching",
     difficulty: 2,
     difficultyLabel: "Intermediate",
@@ -207,9 +201,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Ink Bottle",
-    imageUrl: "https://source.unsplash.com/800x600/?ink,bottle,glass,writing",
-    description:
-      "Draw an ink bottle — the ideal subject for a fineliner. Glass, ink level, label, and the reflection of light all present different challenges.",
+    searchTerms: "bottle glass still life",
+    description: "Draw an ink bottle — the ideal subject for a fineliner. Glass, ink level, label, and the reflection of light all present different challenges.",
     technique: "Reflective Surfaces",
     difficulty: 2,
     difficultyLabel: "Intermediate",
@@ -224,9 +217,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Forest Floor",
-    imageUrl: "https://source.unsplash.com/800x600/?forest,floor,leaves,moss",
-    description:
-      "Look down — draw what's on the ground: leaves, twigs, moss, pebbles. A study in layering, overlap, and texture variety.",
+    searchTerms: "forest leaves nature landscape",
+    description: "Look down — draw what's on the ground: leaves, twigs, moss, pebbles. A study in layering, overlap, and texture variety.",
     technique: "Overlapping Planes",
     difficulty: 2,
     difficultyLabel: "Intermediate",
@@ -241,9 +233,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Bare Tree Against Sky",
-    imageUrl: "https://source.unsplash.com/800x600/?bare,tree,winter,sky",
-    description:
-      "Draw a leafless tree against a light background. Focus on the rhythm of branches and the character of the silhouette.",
+    searchTerms: "bare tree winter landscape",
+    description: "Draw a leafless tree against a light background. Focus on the rhythm of branches and the character of the silhouette.",
     technique: "Varied Line Weight",
     difficulty: 1,
     difficultyLabel: "Beginner",
@@ -258,9 +249,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Eye Close-up",
-    imageUrl: "https://source.unsplash.com/800x600/?eye,macro,iris,closeup",
-    description:
-      "Draw an eye in close-up. This intimate subject demands precision and rewards careful observation of every crease and lash.",
+    searchTerms: "eye portrait figure study",
+    description: "Draw an eye in close-up. This intimate subject demands precision and rewards careful observation of every crease and lash.",
     technique: "Contour & Detail",
     difficulty: 3,
     difficultyLabel: "Advanced",
@@ -275,9 +265,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Stone Wall Section",
-    imageUrl: "https://source.unsplash.com/800x600/?stone,wall,texture,old",
-    description:
-      "Draw a section of a dry stone wall or brick facade. Repetition with variation — every stone is the same, yet different.",
+    searchTerms: "stone wall architecture",
+    description: "Draw a section of a dry stone wall or brick facade. Repetition with variation — every stone is the same, yet different.",
     technique: "Broken Lines & Texture",
     difficulty: 1,
     difficultyLabel: "Beginner",
@@ -292,9 +281,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Keyhole",
-    imageUrl: "https://source.unsplash.com/800x600/?keyhole,lock,old,door",
-    description:
-      "Draw a vintage keyhole — just the keyhole, centered on the page. Use the surrounding darkness to create intrigue and depth.",
+    searchTerms: "door lock key interior",
+    description: "Draw a vintage keyhole — just the keyhole, centered on the page. Use the surrounding darkness to create intrigue and depth.",
     technique: "Negative Space",
     difficulty: 1,
     difficultyLabel: "Beginner",
@@ -309,9 +297,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Hands Holding",
-    imageUrl: "https://source.unsplash.com/800x600/?hands,clasped,holding",
-    description:
-      "Draw two hands clasped together — your own, or from reference. A subject about connection that requires careful study of interlocking forms.",
+    searchTerms: "hands clasped figure study",
+    description: "Draw two hands clasped together — your own, or from reference. A subject about connection that requires careful study of interlocking forms.",
     technique: "Gesture & Proportion",
     difficulty: 3,
     difficultyLabel: "Advanced",
@@ -326,9 +313,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Match Flame",
-    imageUrl: "https://source.unsplash.com/800x600/?match,flame,fire,candle",
-    description:
-      "Draw a lit match or candle flame. A minimal subject that is all about light, warmth, and contrast in black and white.",
+    searchTerms: "flame candle light fire",
+    description: "Draw a lit match or candle flame. A minimal subject that is all about light, warmth, and contrast in black and white.",
     technique: "Flowing Lines & Contrast",
     difficulty: 1,
     difficultyLabel: "Beginner",
@@ -343,9 +329,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Cobblestone Path",
-    imageUrl: "https://source.unsplash.com/800x600/?cobblestone,street,pavement",
-    description:
-      "Draw a section of cobblestone street in perspective. Repetitive pattern with perspective foreshortening and aged surface texture.",
+    searchTerms: "cobblestone street pavement",
+    description: "Draw a section of cobblestone street in perspective. Repetitive pattern with perspective foreshortening and aged surface texture.",
     technique: "Repetitive Mark-making",
     difficulty: 2,
     difficultyLabel: "Intermediate",
@@ -360,9 +345,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Bicycle Wheel",
-    imageUrl: "https://source.unsplash.com/800x600/?bicycle,wheel,spokes",
-    description:
-      "Draw a bicycle wheel — the hub, spokes, rim, and tire. A precise geometric subject that rewards patience and careful construction.",
+    searchTerms: "wheel circular mechanical",
+    description: "Draw a bicycle wheel — the hub, spokes, rim, and tire. A precise geometric subject that rewards patience and careful construction.",
     technique: "Geometric Precision",
     difficulty: 2,
     difficultyLabel: "Intermediate",
@@ -377,9 +361,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Stack of Books",
-    imageUrl: "https://source.unsplash.com/800x600/?stack,books,old,library",
-    description:
-      "Draw a stack of books — horizontal, with varied thicknesses and worn spines. A still life that rewards attention to proportion and texture.",
+    searchTerms: "books still life",
+    description: "Draw a stack of books — horizontal, with varied thicknesses and worn spines. A still life that rewards attention to proportion and texture.",
     technique: "Perspective & Planes",
     difficulty: 1,
     difficultyLabel: "Beginner",
@@ -394,9 +377,8 @@ const challenges: Challenge[] = [
   },
   {
     prompt: "Rain on Glass",
-    imageUrl: "https://source.unsplash.com/800x600/?rain,window,glass,drops",
-    description:
-      "Draw a rain-covered window pane from the inside. Streaks, drops, and the blurred world beyond make for a compelling atmospheric study.",
+    searchTerms: "rain window atmosphere",
+    description: "Draw a rain-covered window pane from the inside. Streaks, drops, and the blurred world beyond make for a compelling atmospheric study.",
     technique: "Flowing Lines",
     difficulty: 2,
     difficultyLabel: "Intermediate",
@@ -411,6 +393,45 @@ const challenges: Challenge[] = [
   },
 ];
 
+const MET_API = "https://collectionapi.metmuseum.org/public/collection/v1";
+
+async function fetchDrawings(searchTerms: string): Promise<Drawing[]> {
+  // Try Drawings & Prints department first, fall back to all departments
+  const queries = [
+    `${MET_API}/search?q=${encodeURIComponent(searchTerms)}&isPublicDomain=true&hasImages=true&departmentId=9`,
+    `${MET_API}/search?q=${encodeURIComponent(searchTerms)}&isPublicDomain=true&hasImages=true`,
+  ];
+
+  let ids: number[] = [];
+  for (const url of queries) {
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.objectIDs?.length) {
+      ids = data.objectIDs.slice(0, 12);
+      break;
+    }
+  }
+  if (!ids.length) return [];
+
+  const details = await Promise.all(
+    ids.map((id) =>
+      fetch(`${MET_API}/objects/${id}`)
+        .then((r) => r.json())
+        .catch(() => null)
+    )
+  );
+
+  return details
+    .filter((d) => d?.primaryImageSmall)
+    .slice(0, 4)
+    .map((d) => ({
+      url: d.primaryImageSmall,
+      title: d.title ?? "Untitled",
+      artist: d.artistDisplayName ?? "",
+      objectUrl: d.objectURL ?? "",
+    }));
+}
+
 function getDailyIndex() {
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
@@ -420,9 +441,23 @@ function getDailyIndex() {
 
 export default function Home() {
   const [index, setIndex] = useState(getDailyIndex);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [drawings, setDrawings] = useState<Drawing[]>([]);
+  const [loadingDrawings, setLoadingDrawings] = useState(false);
+  const [lightboxDrawing, setLightboxDrawing] = useState<Drawing | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   const challenge = challenges[index];
+
+  useEffect(() => {
+    abortRef.current?.abort();
+    setDrawings([]);
+    setLoadingDrawings(true);
+
+    fetchDrawings(challenge.searchTerms).then((results) => {
+      setDrawings(results);
+      setLoadingDrawings(false);
+    });
+  }, [challenge.searchTerms]);
 
   function shuffle() {
     setIndex((prev) => {
@@ -430,7 +465,7 @@ export default function Home() {
       while (next === prev) next = Math.floor(Math.random() * challenges.length);
       return next;
     });
-    setLightboxOpen(false);
+    setLightboxDrawing(null);
   }
 
   return (
@@ -448,16 +483,10 @@ export default function Home() {
             <PenIcon />
           </div>
           <div>
-            <div
-              className="font-bold text-xl leading-tight"
-              style={{ fontFamily: "var(--font-serif)", color: "var(--ink)" }}
-            >
+            <div className="font-bold text-xl leading-tight" style={{ fontFamily: "var(--font-serif)", color: "var(--ink)" }}>
               InkWork
             </div>
-            <div
-              className="text-xs tracking-widest uppercase"
-              style={{ color: "var(--ink-muted)", letterSpacing: "0.14em" }}
-            >
+            <div className="text-xs tracking-widest uppercase" style={{ color: "var(--ink-muted)", letterSpacing: "0.14em" }}>
               Daily Drawing Challenges
             </div>
           </div>
@@ -468,22 +497,13 @@ export default function Home() {
       </header>
 
       {/* ── Hero ── */}
-      <section
-        className="py-12 px-8 text-center"
-        style={{ borderBottom: "1px solid var(--ink-faint)" }}
-      >
-        <blockquote
-          className="text-3xl italic leading-snug mb-5"
-          style={{ fontFamily: "var(--font-serif)", color: "var(--ink)" }}
-        >
+      <section className="py-12 px-8 text-center" style={{ borderBottom: "1px solid var(--ink-faint)" }}>
+        <blockquote className="text-3xl italic leading-snug mb-5" style={{ fontFamily: "var(--font-serif)", color: "var(--ink)" }}>
           &ldquo;Every line you draw is a line you&apos;ve practiced.&rdquo;
         </blockquote>
         <div className="flex items-center justify-center gap-5">
           <div className="h-px w-16" style={{ background: "var(--ink-muted)" }} />
-          <span
-            className="text-xs tracking-widest uppercase"
-            style={{ color: "var(--ink-muted)", letterSpacing: "0.16em" }}
-          >
+          <span className="text-xs tracking-widest uppercase" style={{ color: "var(--ink-muted)", letterSpacing: "0.16em" }}>
             Daily Fineliner Challenges
           </span>
           <div className="h-px w-16" style={{ background: "var(--ink-muted)" }} />
@@ -493,19 +513,10 @@ export default function Home() {
       {/* ── Main ── */}
       <main className="max-w-3xl mx-auto px-6 py-10 space-y-6">
         {/* Challenge card */}
-        <div
-          style={{
-            border: "1px solid #cec9c0",
-            borderRadius: 12,
-            background: "var(--paper)",
-          }}
-        >
+        <div style={{ border: "1px solid #cec9c0", borderRadius: 12, background: "var(--paper)" }}>
           <div className="p-8">
             <div className="flex items-start justify-between mb-6">
-              <span
-                className="text-xs tracking-widest uppercase font-medium"
-                style={{ color: "var(--ink-muted)", letterSpacing: "0.14em" }}
-              >
+              <span className="text-xs tracking-widest uppercase font-medium" style={{ color: "var(--ink-muted)", letterSpacing: "0.14em" }}>
                 Today&apos;s Challenge
               </span>
               <button
@@ -517,17 +528,12 @@ export default function Home() {
                 <ShuffleIcon />
               </button>
             </div>
-
-            <h1
-              className="text-4xl font-bold leading-tight mb-4"
-              style={{ fontFamily: "var(--font-serif)", color: "var(--ink)" }}
-            >
+            <h1 className="text-4xl font-bold leading-tight mb-4" style={{ fontFamily: "var(--font-serif)", color: "var(--ink)" }}>
               {challenge.prompt}
             </h1>
             <p className="text-base leading-relaxed mb-7" style={{ color: "#4a4a4a" }}>
               {challenge.description}
             </p>
-
             <div className="flex items-center gap-5 flex-wrap">
               <DifficultyMeter level={challenge.difficulty} label={challenge.difficultyLabel} />
               <div className="flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-muted)" }}>
@@ -536,12 +542,7 @@ export default function Home() {
               </div>
               <span
                 className="text-xs tracking-widest uppercase px-3 py-1.5"
-                style={{
-                  border: "1px solid var(--ink)",
-                  borderRadius: 4,
-                  color: "var(--ink)",
-                  letterSpacing: "0.12em",
-                }}
+                style={{ border: "1px solid var(--ink)", borderRadius: 4, color: "var(--ink)", letterSpacing: "0.12em" }}
               >
                 {challenge.technique}
               </span>
@@ -552,14 +553,8 @@ export default function Home() {
         {/* Two-column section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Tips */}
-          <div
-            style={{ border: "1px solid #cec9c0", borderRadius: 12, background: "var(--paper)" }}
-            className="p-7"
-          >
-            <h2
-              className="text-xl font-bold mb-6 flex items-center gap-2"
-              style={{ fontFamily: "var(--font-serif)", color: "var(--ink)" }}
-            >
+          <div style={{ border: "1px solid #cec9c0", borderRadius: 12, background: "var(--paper)" }} className="p-7">
+            <h2 className="text-xl font-bold mb-6 flex items-center gap-2" style={{ fontFamily: "var(--font-serif)", color: "var(--ink)" }}>
               <LightbulbIcon />
               Tips &amp; Techniques
             </h2>
@@ -572,19 +567,14 @@ export default function Home() {
                   >
                     {i + 1}
                   </span>
-                  <span className="text-sm leading-relaxed" style={{ color: "#4a4a4a" }}>
-                    {tip}
-                  </span>
+                  <span className="text-sm leading-relaxed" style={{ color: "#4a4a4a" }}>{tip}</span>
                 </li>
               ))}
             </ol>
           </div>
 
           {/* Inspiration gallery */}
-          <div
-            style={{ border: "1px solid #cec9c0", borderRadius: 12, background: "var(--paper)" }}
-            className="p-7"
-          >
+          <div style={{ border: "1px solid #cec9c0", borderRadius: 12, background: "var(--paper)" }} className="p-7">
             <h2
               className="text-xs tracking-widest uppercase font-medium mb-5 flex items-center gap-2"
               style={{ color: "var(--ink-muted)", letterSpacing: "0.14em" }}
@@ -592,63 +582,97 @@ export default function Home() {
               <GalleryIcon />
               Inspiration Gallery
             </h2>
-            <button
-              onClick={() => setLightboxOpen(true)}
-              className="w-full block group relative overflow-hidden mb-3"
-              style={{ borderRadius: 8 }}
-              title="Click to enlarge"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                key={challenge.imageUrl}
-                src={challenge.imageUrl}
-                alt={`Reference photo for ${challenge.prompt}`}
-                className="w-full object-cover"
-                style={{ aspectRatio: "4/3", display: "block" }}
-              />
-              <div
-                className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ background: "rgba(0,0,0,0.35)" }}
-              >
-                <ExpandIcon />
+
+            {loadingDrawings ? (
+              <div className="grid grid-cols-2 gap-2">
+                {[0, 1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="animate-pulse"
+                    style={{ aspectRatio: "4/3", borderRadius: 6, background: "var(--paper-dark)" }}
+                  />
+                ))}
               </div>
-            </button>
-            <p className="text-xs italic" style={{ color: "var(--ink-muted)" }}>
-              Click to enlarge · Use as reference, not to trace
+            ) : drawings.length === 0 ? (
+              <div
+                className="flex flex-col items-center justify-center gap-2"
+                style={{ aspectRatio: "4/3", background: "var(--paper-dark)", borderRadius: 8, border: "1px solid #cec9c0" }}
+              >
+                <GalleryIcon size={28} />
+                <span className="text-sm" style={{ color: "var(--ink-muted)" }}>No drawings found</span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                {drawings.map((drawing, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setLightboxDrawing(drawing)}
+                    className="group relative overflow-hidden"
+                    style={{ aspectRatio: "4/3", borderRadius: 6, background: "var(--paper-dark)" }}
+                    title={drawing.title}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={drawing.url}
+                      alt={drawing.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div
+                      className="absolute inset-0 flex items-end opacity-0 group-hover:opacity-100 transition-opacity p-2"
+                      style={{ background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%)" }}
+                    >
+                      <span className="text-white text-xs leading-tight line-clamp-2">{drawing.title}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <p className="text-xs italic mt-3" style={{ color: "var(--ink-muted)" }}>
+              Works from The Metropolitan Museum of Art · Public domain
             </p>
           </div>
         </div>
       </main>
 
       {/* Lightbox */}
-      {lightboxOpen && (
+      {lightboxDrawing && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-6"
-          style={{ background: "rgba(0,0,0,0.85)" }}
-          onClick={() => setLightboxOpen(false)}
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center p-6"
+          style={{ background: "rgba(0,0,0,0.9)" }}
+          onClick={() => setLightboxDrawing(null)}
         >
           <button
-            onClick={() => setLightboxOpen(false)}
+            onClick={() => setLightboxDrawing(null)}
             className="absolute top-5 right-5 w-10 h-10 flex items-center justify-center"
             style={{ color: "#fff", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 8 }}
-            title="Close"
           >
             <CloseIcon />
           </button>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={challenge.imageUrl}
-            alt={`Reference photo for ${challenge.prompt}`}
-            className="max-w-full max-h-full object-contain"
-            style={{ borderRadius: 8, boxShadow: "0 8px 40px rgba(0,0,0,0.5)" }}
+            src={lightboxDrawing.url.replace("primaryImageSmall", "primaryImage")}
+            alt={lightboxDrawing.title}
+            className="max-w-full max-h-[80vh] object-contain"
+            style={{ borderRadius: 4, boxShadow: "0 8px 40px rgba(0,0,0,0.5)" }}
             onClick={(e) => e.stopPropagation()}
           />
-          <p
-            className="absolute bottom-5 text-xs italic"
-            style={{ color: "rgba(255,255,255,0.5)" }}
-          >
-            Use as reference, not to trace · Photo from Unsplash
-          </p>
+          <div className="mt-4 text-center" onClick={(e) => e.stopPropagation()}>
+            <p className="text-white text-sm font-medium">{lightboxDrawing.title}</p>
+            {lightboxDrawing.artist && (
+              <p className="text-white/60 text-xs mt-1">{lightboxDrawing.artist}</p>
+            )}
+            {lightboxDrawing.objectUrl && (
+              <a
+                href={lightboxDrawing.objectUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/40 text-xs mt-1 underline inline-block hover:text-white/70"
+              >
+                View on metmuseum.org
+              </a>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -669,10 +693,11 @@ function PenIcon() {
 function ShuffleIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="16 3 21 3 21 8" />
-      <line x1="4" y1="20" x2="21" y2="3" />
-      <polyline points="21 16 21 21 16 21" />
-      <line x1="15" y1="15" x2="21" y2="21" />
+      <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22" />
+      <path d="m18 2 4 4-4 4" />
+      <path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2" />
+      <path d="M22 18h-5.9c-1.3 0-2.5-.6-3.3-1.7l-.5-.8" />
+      <path d="m18 14 4 4-4 4" />
     </svg>
   );
 }
@@ -692,17 +717,6 @@ function LightbulbIcon() {
       <line x1="9" y1="18" x2="15" y2="18" />
       <line x1="10" y1="22" x2="14" y2="22" />
       <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14" />
-    </svg>
-  );
-}
-
-function ExpandIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M15 3h6v6" />
-      <path d="M9 21H3v-6" />
-      <path d="M21 3l-7 7" />
-      <path d="M3 21l7-7" />
     </svg>
   );
 }
@@ -736,9 +750,7 @@ function DifficultyMeter({ level, label }: { level: Difficulty; label: string })
         <line x1="12" y1="20" x2="12" y2="4" />
         <line x1="6" y1="20" x2="6" y2="14" />
       </svg>
-      <span className="text-sm" style={{ color: "var(--ink-muted)" }}>
-        {label}
-      </span>
+      <span className="text-sm" style={{ color: "var(--ink-muted)" }}>{label}</span>
       <div className="flex gap-1 ml-1">
         {[1, 2, 3].map((dot) => (
           <div
